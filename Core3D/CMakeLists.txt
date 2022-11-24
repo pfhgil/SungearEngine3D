@@ -6,7 +6,7 @@ project(Core3D)
 add_library(
 	Core3D
     "src/Core3DMain.cpp"
-    "Core3D/Core3DMain.h"
+    "include/Core3D/Core3DMain.h"
 	)
 
 target_link_libraries(Core3D PUBLIC glfw)

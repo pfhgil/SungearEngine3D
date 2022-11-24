@@ -2,10 +2,10 @@
 //
 
 #include "SungearEngine3D.h"
-#include "../glad/glad.h"
+#include <glad.h>
 #include <GLFW/glfw3.h>
 #include "../GLFW/deps/linmath.h"
-#include "../Core3DMain.h"
+#include <Core3D/Core3DMain.h>
 
 
 

@@ -1,7 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 
-#подключаем GLFW (страшно)
-
+#подключаем Ядро и запускаем Движок
 add_subdirectory(GLFW)
 add_subdirectory(glad)
 add_subdirectory(Core3D)

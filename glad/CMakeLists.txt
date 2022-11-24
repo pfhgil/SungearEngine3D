@@ -9,3 +9,11 @@ add_library(
 	khrplatform.h
 	) 
 
+target_include_directories(${PROJECT_NAME}
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}
+	PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+

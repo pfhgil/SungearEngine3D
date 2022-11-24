@@ -1,4 +1,4 @@
-#include "Core3DMain.h"
+#include <Core3D/Core3DMain.h>
 #include "GLFW/glfw3.h"
 
 using namespace Core3D;

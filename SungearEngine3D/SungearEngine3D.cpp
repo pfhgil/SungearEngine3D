@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include "../GLFW/deps/linmath.h"
 #include <Core3D/Core3DMain.h>
-
+#include <Core3D/GLControl/GLBuffer.h>
 
 
 
@@ -59,7 +59,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 int main(void)
 {
     GLFWwindow* window;
-    GLuint vertex_buffer, vertex_shader, fragment_shader, program;
+    GLuint /*vertex_buffer,*/ vertex_shader, fragment_shader, program;
     GLint mvp_location, vpos_location, vcol_location;
 
     glfwSetErrorCallback(error_callback);
@@ -86,9 +86,11 @@ int main(void)
 
     // NOTE: OpenGL error checks have been omitted for brevity
 
-    glGenBuffers(1, &vertex_buffer);
+    GLC::GLBuffer* vertex_buffer = new GLC::GLBuffer(GL_ARRAY_BUFFER);
+    vertex_buffer->Bind()->BufferData(sizeof(vertices), vertices);
+    /*glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);*/
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);

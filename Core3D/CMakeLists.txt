@@ -2,20 +2,20 @@ cmake_minimum_required (VERSION 3.8)
 
 project(Core3D)
 
+set(public_headers
+    include/Core3D/Core3DMain.h
+    include/Core3D/GLControl/GLBuffer.h
+)
 
 add_library(
 	Core3D
     "src/Core3DMain.cpp"
-    "include/Core3D/Core3DMain.h"
+    src/GLControl/GLBuffer.cpp
 	)
 
 target_link_libraries(Core3D PUBLIC glfw)
 target_link_libraries(Core3D PUBLIC glad)
 
-
-set(public_headers
-    include/Core3D/Core3DMain.h
-)
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
 
 target_include_directories(${PROJECT_NAME}

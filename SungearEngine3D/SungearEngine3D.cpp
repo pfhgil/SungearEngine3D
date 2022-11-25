@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include "../GLFW/deps/linmath.h"
 #include <Core3D/Core3DMain.h>
-#include <Core3D/GLControl/GLBuffer.h>
+#include <Core3D/GLControl.h>
 
 
 
@@ -59,7 +59,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 int main(void)
 {
     GLFWwindow* window;
-    GLuint /*vertex_buffer,*/ vertex_shader, fragment_shader, program;
     GLint mvp_location, vpos_location, vcol_location;
 
     glfwSetErrorCallback(error_callback);
@@ -86,29 +85,15 @@ int main(void)
 
     // NOTE: OpenGL error checks have been omitted for brevity
 
-    GLC::GLBuffer* vertex_buffer = new GLC::GLBuffer(GL_ARRAY_BUFFER);
-    vertex_buffer->Bind()->BufferData(sizeof(vertices), vertices);
-    /*glGenBuffers(1, &vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);*/
+    GLC::GLBuffer* vertex_buffer = new GLC::GLBuffer();
+    vertex_buffer->Bind()->Data(sizeof(vertices), vertices);//Биндим буффер и записываем в него данные
 
-    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
-    glCompileShader(vertex_shader);
+    GLC::GLShader* shader = (new GLC::GLShader(fragment_shader_text, vertex_shader_text))->Use();
 
-    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
-    glCompileShader(fragment_shader);
+    vpos_location = shader->getAttribLocation("vPos");
+    vcol_location = shader->getAttribLocation("vCol");
 
-    program = glCreateProgram();
-    glAttachShader(program, vertex_shader);
-    glAttachShader(program, fragment_shader);
-    glLinkProgram(program);
-
-    mvp_location = glGetUniformLocation(program, "MVP");
-    vpos_location = glGetAttribLocation(program, "vPos");
-    vcol_location = glGetAttribLocation(program, "vCol");
-
+    // Заменить на систему компановки аттрибутов
     glEnableVertexAttribArray(vpos_location);
     glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
         sizeof(vertices[0]), (void*)0);
@@ -133,8 +118,8 @@ int main(void)
         mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
         mat4x4_mul(mvp, p, m);
 
-        glUseProgram(program);
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*)mvp);
+        shader->Use();
+        shader->uMat4x4("MVP", mvp);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);

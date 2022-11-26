@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace Core3D;
+using namespace GLC;
 
 void error_callback(int error, const char* description)
 {
@@ -59,7 +60,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 int main(void)
 {
     GLFWwindow* window;
-    GLint mvp_location, vpos_location, vcol_location;
 
     glfwSetErrorCallback(error_callback);
 
@@ -85,21 +85,23 @@ int main(void)
 
     // NOTE: OpenGL error checks have been omitted for brevity
 
-    GLC::GLBuffer* vertex_buffer = new GLC::GLBuffer();
+    GLBuffer* vertex_buffer = new GLC::GLBuffer();
     vertex_buffer->Bind()->Data(sizeof(vertices), vertices);//Биндим буффер и записываем в него данные
 
-    GLC::GLShader* shader = (new GLC::GLShader(fragment_shader_text, vertex_shader_text))->Use();
+    GLShader* shader = (new GLShader(fragment_shader_text, vertex_shader_text))->Use();
 
-    vpos_location = shader->getAttribLocation("vPos");
-    vcol_location = shader->getAttribLocation("vCol");
+    GLVertexArray* VAO = (new GLVertexArray(shader))->Bind();
 
-    // Заменить на систему компановки аттрибутов
-    glEnableVertexAttribArray(vpos_location);
+    VAO->PutAttrib("vPos", vertex_buffer, sizeof(float) * 2, 2, GL_FLOAT);
+    VAO->PutAttrib("vCol", vertex_buffer, sizeof(float) * 3, 3, GL_FLOAT);
+    VAO->BuildAttribs();
+
+    /*glEnableVertexAttribArray(vpos_location);
     glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
         sizeof(vertices[0]), (void*)0);
     glEnableVertexAttribArray(vcol_location);
     glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
-        sizeof(vertices[0]), (void*)(sizeof(float) * 2));
+        sizeof(vertices[0]), (void*)(sizeof(float) * 2));*/
 
     while (!glfwWindowShouldClose(window))
     {

@@ -20,7 +20,7 @@ GLShader::GLShader(string fragmentSource, string vertexSource) {
 	getAttribs();
 }
 GLShader::~GLShader() {
-
+	glDeleteProgram(_programHandler);
 }
 
 GLuint GLShader::Compile(string code, GLenum type) {
@@ -90,3 +90,4 @@ GLShader* GLShader::getAttribs() {
 	}
 	return this;
 }
+

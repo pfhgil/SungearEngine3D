@@ -20,7 +20,7 @@ namespace Core3D {
 
 			GLBuffer* Bind();
 			GLBuffer* Data(GLsizeiptr size, const void* data, GLenum usage= GL_DYNAMIC_DRAW);
-			GLBuffer* Clear(); 
+			GLBuffer* Clear();
 		};
 
 
@@ -68,8 +68,34 @@ namespace Core3D {
 			bool ContainsAttrib(string name) { return _attribs.find(name) != _attribs.end(); }
 			// Задать аттрибуты
 			// TODO: систему компновки аттрибутов
+			
 		};
 
 
+		class GLVertexArray {
+		private:
+			GLuint _handler = 0;
+			GLShader* _program = nullptr;
+			// <<name, Buffer, dataSize, dataCount, dataType>>
+			// dataSize - размер данных на одну вершину
+			vector<tuple<string, GLBuffer*, unsigned int, unsigned int, GLenum>> _attribsData = vector<tuple<string, GLBuffer*, unsigned int, unsigned, GLenum>>();
+		public:
+			GLVertexArray() { glGenVertexArrays(1, &_handler); }
+			GLVertexArray(GLShader* shader) : GLVertexArray() { SetProgram(shader); }
+			~GLVertexArray() {};
+
+			GLVertexArray* SetProgram(GLShader* program) { _program = program; return this;}
+			GLVertexArray* Bind() { glBindVertexArray(_handler); return this; }
+
+
+			GLVertexArray* PutAttrib(string name, GLBuffer* buffer, unsigned int dataSize, unsigned int dataCount, GLenum dataType) 
+				{ _attribsData.push_back(make_tuple(name, buffer, dataSize, dataCount, dataType)); return this; }
+
+			GLVertexArray* PutAttrib(string name, vector<float>* arr, int vertexDataCount)
+				{ PutAttrib(name, (new GLBuffer())->Bind()->Data(sizeof(arr), arr), sizeof(float)*vertexDataCount, arr->size(), GL_FLOAT); }
+
+
+			GLVertexArray* BuildAttribs();
+		};
 	}
 }

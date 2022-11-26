@@ -10,7 +10,8 @@ add_library(
 	Core3D
     "src/Core3DMain.cpp"
     src/GLControl/GLBuffer.cpp
-	  "src/GLControl/GLShader.cpp")
+	"src/GLControl/GLShader.cpp" 
+    "src/GLControl/GLVertexArray.cpp")
 
 target_link_libraries(Core3D PUBLIC glfw)
 target_link_libraries(Core3D PUBLIC glad)

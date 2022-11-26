@@ -4,9 +4,11 @@
 
 using std::string;
 
-namespace Core3D {
-	class Core3DMain {
-	public: 
-		string getCore3DName();
+namespace Core3D 
+{
+	class Core3DMain 
+	{
+		public: 
+			string getCore3DName();
 	};
 }

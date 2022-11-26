@@ -5,18 +5,22 @@ using namespace Core3D::GLC;
 
 GLVertexArray* GLVertexArray::BuildAttribs() {//FIXME: загрузка с разных буферов
 	int stride = 0;
-	for (auto v : _attribsData) {
-		auto [name, buffer, dataSize, dataCount, dataType] = v;
-		stride += dataSize;
+	for (auto a : _attribsData) {
+		stride += a.size;
 	}
 	long offset = 0;
-	for (auto v : _attribsData) {
-		auto [name, buffer, dataSize, dataCount, dataType] = v;
-		GLuint attrLocation = _program->getAttribLocation(name);
+	for (auto a : _attribsData) {
+		GLuint attrLocation = _program->getAttribLocation(a.name);
 		glEnableVertexAttribArray(attrLocation);
-		buffer->Bind();
-		glVertexAttribPointer(attrLocation, dataCount, dataType, GL_FALSE, stride, (void*)offset);
-		offset += dataSize;
+		a.buffer->Bind();
+		glVertexAttribPointer(attrLocation, a.count, a.type, GL_FALSE, stride, (void*)offset);
+		offset += a.size;
 	}
+	return this;
+}
+
+GLVertexArray* GLVertexArray::PutAttrib(GLVertexArrayAttribute attrib)
+{
+	this->_attribsData.push_back(attrib);
 	return this;
 }

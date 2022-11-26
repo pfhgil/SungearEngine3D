@@ -7,12 +7,13 @@
 #include "../GLFW/deps/linmath.h"
 #include <Core3D/Core3DMain.h>
 #include <Core3D/GLControl.h>
-
+#include <Core3D/Utils.h>   
 
 
 using namespace std;
 using namespace Core3D;
 using namespace GLC;
+using namespace Utils;
 
 void error_callback(int error, const char* description)
 {
@@ -30,26 +31,6 @@ static const struct
     {  0.6f, -0.4f, 0.f, 1.f, 0.f },
     {   0.f,  0.6f, 0.f, 0.f, 1.f }
 };
-
-static const char* vertex_shader_text =
-"#version 110\n"
-"uniform mat4 MVP;\n"
-"attribute vec3 vCol;\n"
-"attribute vec2 vPos;\n"
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_Position = MVP * vec4(vPos, 0.0, 1.0);\n"
-"    color = vCol;\n"
-"}\n";
-
-static const char* fragment_shader_text =
-"#version 110\n"
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_FragColor = vec4(color, 1.0);\n"
-"}\n";
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -88,20 +69,18 @@ int main(void)
     GLBuffer* vertex_buffer = new GLC::GLBuffer();
     vertex_buffer->Bind()->Data(sizeof(vertices), vertices);//Биндим буффер и записываем в него данные
 
-    GLShader* shader = (new GLShader(fragment_shader_text, vertex_shader_text))->Use();
+    string shaderText = FileUtils::ReadAllFile("D:/Pixelfield/C++Learning/SungearEngine3D/Core3D/Resources/Shaders/default.glsl");
+    GLShader* shader = (new GLShader(shaderText))->Use();
 
     GLVertexArray* VAO = (new GLVertexArray(shader))->Bind();
 
-    VAO->PutAttrib("vPos", vertex_buffer, sizeof(float) * 2, 2, GL_FLOAT);
-    VAO->PutAttrib("vCol", vertex_buffer, sizeof(float) * 3, 3, GL_FLOAT);
+    GLVertexArrayAttribute vPos = {"vPos", vertex_buffer, sizeof(float) * 2, 2, GL_FLOAT};
+    GLVertexArrayAttribute vCol = {"vCol", vertex_buffer, sizeof(float) * 3, 3, GL_FLOAT};
+    VAO->PutAttrib(vPos);
+    VAO->PutAttrib(vCol);
     VAO->BuildAttribs();
 
-    /*glEnableVertexAttribArray(vpos_location);
-    glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
-        sizeof(vertices[0]), (void*)0);
-    glEnableVertexAttribArray(vcol_location);
-    glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
-        sizeof(vertices[0]), (void*)(sizeof(float) * 2));*/
+    cout << shaderText << endl;
 
     while (!glfwWindowShouldClose(window))
     {

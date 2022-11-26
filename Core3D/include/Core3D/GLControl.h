@@ -6,96 +6,102 @@
 
 using namespace std;
 
-namespace Core3D {
-	namespace GLC {
-		class GLBuffer {
-		private:
-			GLuint _handler = 0;
-			GLenum _type= GL_DYNAMIC_DRAW;
+namespace Core3D
+{
+	namespace GLC 
+	{
+		class GLBuffer 
+		{
+			private:
+				GLuint _handler = 0;
+				GLenum _type = GL_ARRAY_BUFFER;
 			
-		public:
-			GLBuffer() : GLBuffer(GL_ARRAY_BUFFER) {}
-			GLBuffer(GLenum type);
-			~GLBuffer();
+			public:
+				GLBuffer() : GLBuffer(GL_ARRAY_BUFFER) {}
+				GLBuffer(GLenum type);
+				~GLBuffer();
 
-			GLBuffer* Bind();
-			GLBuffer* Data(GLsizeiptr size, const void* data, GLenum usage= GL_DYNAMIC_DRAW);
-			GLBuffer* Clear();
+				GLBuffer* Bind();
+				GLBuffer* Data(GLsizeiptr size, const void* data, GLenum type = GL_DYNAMIC_DRAW);
+				GLBuffer* Clear();
 		};
 
 
-		class GLShader {
-		private:
-			GLuint _programHandler = 0;
+		class GLShader 
+		{
+			private:
+				GLuint _programHandler = 0;
 
-			map<std::string, GLint> _uniforms = map<std::string, GLint>();
-			map<std::string, GLint> _attribs = map<std::string, GLint>();
-			GLShader* getUniforms();
-			GLShader* getAttribs();
-			GLint getLocation(string name) 
-			{ 
-				if (!ContainsUniform(name)) { throw exception("BRUH"); }
-				return _uniforms[name];
-			}
-			static const GLsizei bufferSize = 16;
-		public:
-			GLShader();
-			GLShader(string computeShaderCode);
-			GLShader(string fragmentShaderCode, string vertexShaderCode);
-			~GLShader();
+				map<std::string, GLint> _uniforms = map<std::string, GLint>();
+				map<std::string, GLint> _attribs = map<std::string, GLint>();
 
-			GLShader* Use() { glUseProgram(_programHandler); return this; }
+				GLShader* getUniforms();
+				GLShader* getAttribs();
 
-			// Компиляция шейдеров (для своих сборок шейдеров)
-			static GLuint Compile(string code, GLenum type); 
-			static shared_ptr<vector<GLuint>> Compile(vector<tuple<string, GLenum>>& arr);
+				GLint getLocation(string name) 
+				{ 
+					if (!ContainsUniform(name)) { throw exception("BRUH"); }
+					return _uniforms[name];
+				}
 
-			//Создание программы и линковка к нему шейдеров 
-			GLShader* BuildProgram(GLuint shader);
-			GLShader* BuildProgram(vector<GLuint>& shaders);
+				static const GLsizei bufferSize = 16;
+			public:
+				GLShader();
+				GLShader(string shaderCode);
+				~GLShader();
 
-			GLShader* LinkProgram() { glLinkProgram(_programHandler); return this; }
+				GLShader* Use() { glUseProgram(_programHandler); return this; }
 
-			GLint getAttribLocation(string name) { return _attribs[name]; }// Временный метод пока отсутствует система компоновки аттрибутов
+				// Компиляция шейдеров (для своих сборок шейдеров)
+				static shared_ptr<vector<GLuint>> Compile(vector<tuple<string, GLenum>>& arr);
 
-			static void FromFile(string fragmentSource, string vertexSource);
+				//Создание программы и линковка к нему шейдеров 
+				GLShader* BuildProgram(vector<GLuint>& shaders);
 
+				GLShader* LinkProgram() { glLinkProgram(_programHandler); return this; }
 
-			bool ContainsUniform(string name) { return _uniforms.find(name)!=_uniforms.end(); }
-			// Методы что бы задать uniform-ы разных типов
-			void uMat4x4(string name, mat4x4 value) { glUniformMatrix4fv(getLocation(name), 1, GL_FALSE, (const GLfloat*)value); }
+				GLint getAttribLocation(string name) { return _attribs[name]; }// Временный метод пока отсутствует система компоновки аттрибутов
 
-			bool ContainsAttrib(string name) { return _attribs.find(name) != _attribs.end(); }
-			// Задать аттрибуты
-			// TODO: систему компновки аттрибутов
+				bool ContainsUniform(string name) { return _uniforms.find(name) != _uniforms.end(); }
+
+				// Методы что бы задать uniform-ы разных типов
+				void uMat4x4(string name, mat4x4 value) { glUniformMatrix4fv(getLocation(name), 1, GL_FALSE, (const GLfloat*) value); }
+
+				bool ContainsAttrib(string name) { return _attribs.find(name) != _attribs.end(); }
+				// Задать аттрибуты
+				// TODO: систему компновки аттрибутов
 			
 		};
 
 
-		class GLVertexArray {
-		private:
-			GLuint _handler = 0;
-			GLShader* _program = nullptr;
-			// <<name, Buffer, dataSize, dataCount, dataType>>
-			// dataSize - размер данных на одну вершину
-			vector<tuple<string, GLBuffer*, unsigned int, unsigned int, GLenum>> _attribsData = vector<tuple<string, GLBuffer*, unsigned int, unsigned, GLenum>>();
-		public:
-			GLVertexArray() { glGenVertexArrays(1, &_handler); }
-			GLVertexArray(GLShader* shader) : GLVertexArray() { SetProgram(shader); }
-			~GLVertexArray() {};
+		struct GLVertexArrayAttribute
+		{
+			string name;
+			GLBuffer* buffer;
+			unsigned int size;
+			unsigned int count;
+			GLenum type;
+		};
 
-			GLVertexArray* SetProgram(GLShader* program) { _program = program; return this;}
-			GLVertexArray* Bind() { glBindVertexArray(_handler); return this; }
+		class GLVertexArray
+		{
+			private:
+				GLuint _handler = 0;
+				GLShader* _program = nullptr;
+				// <<name, Buffer, dataSize, dataCount, dataType>>
+				// dataSize - размер данных на одну вершину
+				vector<GLVertexArrayAttribute> _attribsData = vector<GLVertexArrayAttribute>();
+			public:
+				GLVertexArray() { glGenVertexArrays(1, &_handler); }
+				GLVertexArray(GLShader* shader) : GLVertexArray() { SetProgram(shader); }
+				~GLVertexArray() {};
 
+				GLVertexArray* SetProgram(GLShader* program) { _program = program; return this;}
+				GLVertexArray* Bind() { glBindVertexArray(_handler); return this; }
 
-			GLVertexArray* PutAttrib(string name, GLBuffer* buffer, unsigned int dataSize, unsigned int dataCount, GLenum dataType) 
-				{ _attribsData.push_back(make_tuple(name, buffer, dataSize, dataCount, dataType)); return this; }
+				GLVertexArray* PutAttrib(GLVertexArrayAttribute attribute);
 
-			GLVertexArray* PutAttrib(string name, vector<float>* arr, int vertexDataCount)
-				{ PutAttrib(name, (new GLBuffer())->Bind()->Data(sizeof(arr), arr), sizeof(float)*vertexDataCount, arr->size(), GL_FLOAT); }
-
-
-			GLVertexArray* BuildAttribs();
+				GLVertexArray* BuildAttribs();
 		};
 	}
 }

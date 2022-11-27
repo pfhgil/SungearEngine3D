@@ -36,7 +36,6 @@ namespace Core3D
 			public:
 				MeshRendereComponent() { }
 				~MeshRendereComponent() { }
-				~MeshRendereComponent() { }
 		};
 	}
 }

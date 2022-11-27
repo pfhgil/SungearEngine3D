@@ -1,13 +1,10 @@
 ﻿// SungearEngine3D.cpp: определяет точку входа для приложения.
 //
 
-#include "SungearEngine3D.h"
 #include <glad.h>
 #include <GLFW/glfw3.h>
-#include "../GLFW/deps/linmath.h"
-#include <Core3D/Core3DMain.h>
 #include <Core3D/GLControl.h>
-#include <Core3D/Utils.h>   
+#include <Core3D/Utils.h>  
 
 
 using namespace std;
@@ -35,6 +32,10 @@ static const struct
     {  1.0, -1.0, -1.0, 1.f, 0.f, 0.0f },
     {  -1.0,  1.0, -1.0, 1.f, 0.f, 0.0f },
     {  1.0,  1.0, -1.0, 1.f, 0.f, 0.0f }
+};
+
+static const GLushort indices[] = {
+    0, 1, 2, 3, 7, 1, 5, 4, 7, 6, 2, 4, 0, 1
 };
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -74,38 +75,49 @@ int main(void)
     GLBuffer* vertex_buffer = new GLC::GLBuffer();
     vertex_buffer->Bind()->Data(sizeof(vertices), vertices);//Биндим буффер и записываем в него данные
 
+
+    GLBuffer* index_buffer = new GLC::GLBuffer(GL_ELEMENT_ARRAY_BUFFER);
+    index_buffer->Bind()->Data(sizeof(indices), indices);//Биндим буффер и записываем в него данные
+
     string shaderText = FileUtils::ReadAllFile("D:/Pixelfield/C++Learning/SungearEngine3D/Core3D/Resources/Shaders/default.glsl");
     GLShader* shader = (new GLShader(shaderText))->Use();
 
     GLVertexArray* VAO = new GLVertexArray();
 
-    GLVertexArrayAttribute vPos = {"vPos", vertex_buffer, sizeof(float) * 2, 2, GL_FLOAT};
+    GLVertexArrayAttribute vPos = {"vPos", vertex_buffer, sizeof(float) * 3, 3, GL_FLOAT};
     GLVertexArrayAttribute vCol = {"vCol", vertex_buffer, sizeof(float) * 3, 3, GL_FLOAT};
     VAO->PutAttribs(vPos, vCol);
     VAO->BuildAttribs(*shader);
 
     cout << shaderText << endl;
 
+    mat4 m = mat4(1.0f);
+    mat4 v = mat4(1.0f);
+    mat4 p = mat4(1.0f);
+    mat4 mvp = mat4();
+
+    //m = translate(m, vec3(0.0f, 0.0f, 0.0f));
+    v = translate(v, vec3(0.0f, 0.0f, -10.0f));
+
     while (!glfwWindowShouldClose(window))
     {
         float ratio;
         int width, height;
-        mat4x4 m, p, mvp;
 
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float)height;
 
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        mat4x4_identity(m);
-        mat4x4_rotate_Z(m, m, (float)glfwGetTime());
-        mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        mat4x4_mul(mvp, p, m);
+        
+        m = rotate(mat4(1.0f), (float) glfwGetTime(), vec3(1.0f, 0.0f, 0.0f));
+        p = perspective(45.0f, ratio, 0.1f, 100.0f);
+        mvp = p * v * m;
 
         shader->Use();
         shader->uMat4x4("MVP", mvp);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_SHORT, nullptr);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

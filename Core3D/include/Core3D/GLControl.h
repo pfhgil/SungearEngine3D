@@ -4,9 +4,11 @@
 #include <map>
 #include <stdarg.h>
 #include <functional>
-#include "../../../GLFW/deps/linmath.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace std;
+using namespace glm;
 
 namespace Core3D
 {
@@ -67,7 +69,7 @@ namespace Core3D
 				bool ContainsUniform(string name) { return _uniforms.find(name) != _uniforms.end(); }
 
 				// Методы что бы задать uniform-ы разных типов
-				void uMat4x4(string name, mat4x4 value) { glUniformMatrix4fv(getLocation(name), 1, GL_FALSE, (const GLfloat*) value); }
+				void uMat4x4(string name, mat4 value) { glUniformMatrix4fv(getLocation(name), 1, GL_FALSE, &value[0][0]); }
 
 				bool ContainsAttrib(string name) { return _attribs.find(name) != _attribs.end(); }
 				// Задать аттрибуты
@@ -91,7 +93,7 @@ namespace Core3D
 				GLuint _handler = 0;
 				// <<name, Buffer, dataSize, dataCount, dataType>>
 				// dataSize - размер данных на одну вершину
-				vector<GLVertexArrayAttribute> _attribsData = vector<GLVertexArrayAttribute>();
+				vector<GLVertexArrayAttribute> _attribsData;
 			public:
 				GLVertexArray() { glGenVertexArrays(1, &_handler); }
 				~GLVertexArray() {};
@@ -99,7 +101,7 @@ namespace Core3D
 				inline void Bind() { glBindVertexArray(_handler); }
 
 				template<typename... Args>
-				inline void PutAttribs(Args&... attribs)
+				inline void PutAttribs(Args&... attribs) noexcept
 				{
 					_attribsData.insert(_attribsData.end(), {attribs...});
 				};
@@ -107,4 +109,4 @@ namespace Core3D
 			    void BuildAttribs(GLShader& shader);
 		};
 	}
-}
+}	

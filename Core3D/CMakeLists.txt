@@ -20,6 +20,7 @@ add_library(
 
 target_link_libraries(Core3D PUBLIC glfw)
 target_link_libraries(Core3D PUBLIC glad)
+target_link_libraries(Core3D PUBLIC glm::glm)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
 

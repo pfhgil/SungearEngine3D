@@ -16,11 +16,17 @@ add_library(
     #"include/Core3D/DataClasses.h" 
     "src/Utils/FileUtils.cpp"
     #"include/Core3D/Utils.h"
- "src/GameObject/GameObject.cpp" "src/GameObject/Components/Component.cpp" "src/GameObject/Components/MeshRendererComponent.cpp" "include/Core3D/GameObject/Components/Components.h" "include/Core3D/GameObject/GameObject.h")
+     "src/GameObject/GameObject.cpp" 
+     "src/GameObject/Components/Component.cpp" 
+     #"src/GameObject/Components/MeshRendererComponent.cpp" 
+     #"include/Core3D/GameObject/Components/Components.h"
+     #"include/Core3D/GameObject/GameObject.h"
+)
 
 target_link_libraries(Core3D PUBLIC glfw)
 target_link_libraries(Core3D PUBLIC glad)
 target_link_libraries(Core3D PUBLIC glm::glm)
+target_link_libraries(Core3D PUBLIC assimp::assimp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
 

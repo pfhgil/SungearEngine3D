@@ -23,13 +23,18 @@ void error_callback(int error, const char* description)
 
 static const struct
 {
-    float x, y;
+    float x, y, z;
     float r, g, b;
-} vertices[3] =
+} vertices[8] =
 {
-    { -0.6f, -0.4f, 1.f, 0.f, 0.f },
-    {  0.6f, -0.4f, 0.f, 1.f, 0.f },
-    {   0.f,  0.6f, 0.f, 0.f, 1.f }
+    {  -1.0, -1.0,  1.0, 1.f, 0.f, 0.0f },
+    {  1.0, -1.0,  1.0, 1.f, 0.f, 0.0f },
+    {  -1.0,  1.0,  1.0, 1.f, 0.f, 0.0f },
+    {  1.0,  1.0,  1.0, 1.f, 0.f, 0.0f },
+    {  -1.0, -1.0, -1.0, 1.f, 0.f, 0.0f },
+    {  1.0, -1.0, -1.0, 1.f, 0.f, 0.0f },
+    {  -1.0,  1.0, -1.0, 1.f, 0.f, 0.0f },
+    {  1.0,  1.0, -1.0, 1.f, 0.f, 0.0f }
 };
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -72,13 +77,12 @@ int main(void)
     string shaderText = FileUtils::ReadAllFile("D:/Pixelfield/C++Learning/SungearEngine3D/Core3D/Resources/Shaders/default.glsl");
     GLShader* shader = (new GLShader(shaderText))->Use();
 
-    GLVertexArray* VAO = (new GLVertexArray(shader))->Bind();
+    GLVertexArray* VAO = new GLVertexArray();
 
     GLVertexArrayAttribute vPos = {"vPos", vertex_buffer, sizeof(float) * 2, 2, GL_FLOAT};
     GLVertexArrayAttribute vCol = {"vCol", vertex_buffer, sizeof(float) * 3, 3, GL_FLOAT};
-    VAO->PutAttrib(vPos);
-    VAO->PutAttrib(vCol);
-    VAO->BuildAttribs();
+    VAO->PutAttribs(vPos, vCol);
+    VAO->BuildAttribs(*shader);
 
     cout << shaderText << endl;
 

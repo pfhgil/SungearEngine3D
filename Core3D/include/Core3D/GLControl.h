@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <stdarg.h>
+#include <functional>
 #include "../../../GLFW/deps/linmath.h"
 
 using namespace std;
@@ -87,21 +89,22 @@ namespace Core3D
 		{
 			private:
 				GLuint _handler = 0;
-				GLShader* _program = nullptr;
 				// <<name, Buffer, dataSize, dataCount, dataType>>
 				// dataSize - размер данных на одну вершину
 				vector<GLVertexArrayAttribute> _attribsData = vector<GLVertexArrayAttribute>();
 			public:
 				GLVertexArray() { glGenVertexArrays(1, &_handler); }
-				GLVertexArray(GLShader* shader) : GLVertexArray() { SetProgram(shader); }
 				~GLVertexArray() {};
 
-				GLVertexArray* SetProgram(GLShader* program) { _program = program; return this;}
-				GLVertexArray* Bind() { glBindVertexArray(_handler); return this; }
+				inline void Bind() { glBindVertexArray(_handler); }
 
-				GLVertexArray* PutAttrib(GLVertexArrayAttribute attribute);
+				template<typename... Args>
+				inline void PutAttribs(Args&... attribs)
+				{
+					_attribsData.insert(_attribsData.end(), {attribs...});
+				};
 
-				GLVertexArray* BuildAttribs();
+			    void BuildAttribs(GLShader& shader);
 		};
 	}
 }
